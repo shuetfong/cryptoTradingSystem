@@ -1,5 +1,6 @@
 package com.example.cryptotradingsystem.entity;
 
+import com.example.cryptotradingsystem.enumeration.TradingPair;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,8 @@ public class AggregatedPrice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long priceId;
 
-    private String tradingPair;
+    @Enumerated(EnumType.STRING)
+    private TradingPair tradingPair;
 
     // SELL order
     private BigDecimal bidPrice;

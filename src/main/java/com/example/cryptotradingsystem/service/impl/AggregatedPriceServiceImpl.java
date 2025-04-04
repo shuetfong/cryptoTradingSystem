@@ -3,6 +3,7 @@ package com.example.cryptotradingsystem.service.impl;
 import com.example.cryptotradingsystem.dto.BinanceTicker;
 import com.example.cryptotradingsystem.dto.HuobiTicker;
 import com.example.cryptotradingsystem.entity.AggregatedPrice;
+import com.example.cryptotradingsystem.enumeration.TradingPair;
 import com.example.cryptotradingsystem.repository.AggregatedPriceRepository;
 import com.example.cryptotradingsystem.service.AggregatedPriceService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,7 +28,7 @@ public class AggregatedPriceServiceImpl implements AggregatedPriceService {
     private final AggregatedPriceRepository aggregatedPriceRepository;
     private final RestTemplate restTemplate;
 
-    private static final Set<String> TRADING_PAIRS = Set.of("ETHUSDT", "BTCUSDT");
+    private static final Set<String> TRADING_PAIRS = Arrays.stream(TradingPair.values()).map(TradingPair::toString).collect(Collectors.toSet());
 
     @Override
     @Transactional(readOnly = true)
@@ -53,7 +54,8 @@ public class AggregatedPriceServiceImpl implements AggregatedPriceService {
             log.error("Failed to fetch Huobi prices: {}", e.getMessage());
         }
 
-        log.info("huobiTickers {}", huobiTickers);
+//        log.info("binanceTickers {}", binanceTickers);
+//        log.info("huobiTickers {}", huobiTickers);
 
         aggregateAndSave(binanceTickers, huobiTickers);
     }
@@ -119,7 +121,7 @@ public class AggregatedPriceServiceImpl implements AggregatedPriceService {
             BigDecimal bestAsk = Collections.min(askPrices);
 
             AggregatedPrice aggregatedPrice = new AggregatedPrice();
-            aggregatedPrice.setTradingPair(pair);
+            aggregatedPrice.setTradingPair(TradingPair.valueOf(pair));
             aggregatedPrice.setBidPrice(bestBid);
             aggregatedPrice.setAskPrice(bestAsk);
             aggregatedPrice.setCreatedDate(now);

@@ -1,5 +1,6 @@
 package com.example.cryptotradingsystem.entity;
 
+import com.example.cryptotradingsystem.enumeration.TradingPair;
 import com.example.cryptotradingsystem.enumeration.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,8 @@ public class Transaction {
 
     private String userId = "1";
 
-    private String tradingPair;
+    @Enumerated(EnumType.STRING)
+    private TradingPair tradingPair;
 
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
