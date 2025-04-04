@@ -26,7 +26,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
 
-    public Wallet createNewCryptoWallet(String crypto) {
+    private Wallet createNewCryptoWallet(String crypto) {
         Wallet wallet = new Wallet();
         wallet.setCurrency(crypto);
         wallet.setAvailableBalance(BigDecimal.ZERO);
@@ -44,7 +44,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new RuntimeException("No prices found for pair: " + trade.getTradingPair()));
 
         boolean isBuy = trade.getTransactionType().equals(TransactionType.BUY);
-        BigDecimal totalAmount = isBuy ? aggregatedPrice.getAskPrice() : aggregatedPrice.getBidPrice();
+        BigDecimal price = isBuy ? aggregatedPrice.getAskPrice() : aggregatedPrice.getBidPrice();
+        BigDecimal totalAmount = trade.getQuantity().multiply(price);
 
         String crypto = trade.getTradingPair().toString().replace("USDT", "");
         List<Wallet> wallets = walletRepository.findByUserId("1");
@@ -82,12 +83,19 @@ public class TransactionServiceImpl implements TransactionService {
         walletRepository.saveAll(List.of(walletUSDT, walletUSDT));
 
         Transaction transaction = new Transaction();
-        transaction.setTransactionType(trade.getTransactionType());
         transaction.setTradingPair(trade.getTradingPair());
+        transaction.setTransactionType(trade.getTransactionType());
         transaction.setQuantity(trade.getQuantity());
+        transaction.setPrice(price);
         transaction.setTotalAmount(totalAmount);
         transactionRepository.save(transaction);
 
         return transaction;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findTransactions() {
+        return transactionRepository.findByUserIdOrderByCreatedDateDesc("1");
     }
 }
