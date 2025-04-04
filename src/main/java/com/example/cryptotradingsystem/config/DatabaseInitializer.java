@@ -4,17 +4,15 @@ import com.example.cryptotradingsystem.entity.Wallet;
 import com.example.cryptotradingsystem.entity.WalletId;
 import com.example.cryptotradingsystem.repository.WalletRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
+@RequiredArgsConstructor
 public class DatabaseInitializer {
     private final WalletRepository walletRepository;
-
-    public DatabaseInitializer(WalletRepository walletRepository) {
-        this.walletRepository = walletRepository;
-    }
 
     @PostConstruct
     public void initialize() {
