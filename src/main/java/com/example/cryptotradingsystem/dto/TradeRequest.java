@@ -10,10 +10,11 @@ import java.math.BigDecimal;
 
 @Data
 public class TradeRequest {
-    @NotNull(message = "Invalid transaction type")
+    @NotNull
     private TransactionType transactionType;
-    @NotNull(message = "Invalid trading pair")
+    @NotNull
     private TradingPair tradingPair;
-    @Positive(message = "Quantity must be a positive number")
+    @NotNull
+    @Positive
     private BigDecimal quantity;
 }
