@@ -28,10 +28,13 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
+    @Column(precision = 20, scale = 8)
     private BigDecimal quantity;
 
+    @Column(precision = 20, scale = 8)
     private BigDecimal price;
 
+    @Column(precision = 20, scale = 8)
     private BigDecimal totalAmount;
 
     @Column(updatable = false)

@@ -23,9 +23,11 @@ public class AggregatedPrice {
     private TradingPair tradingPair;
 
     // SELL order
+    @Column(precision = 20, scale = 8)
     private BigDecimal bidPrice;
 
     // BUY order
+    @Column(precision = 20, scale = 8)
     private BigDecimal askPrice;
 
     private LocalDateTime createdDate;

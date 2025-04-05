@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Slf4j
@@ -44,8 +45,9 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new RuntimeException("No prices found for pair: " + trade.getTradingPair()));
 
         boolean isBuy = trade.getTransactionType().equals(TransactionType.BUY);
+        BigDecimal quantity = trade.getQuantity().setScale(8, RoundingMode.HALF_UP);
         BigDecimal price = isBuy ? aggregatedPrice.getAskPrice() : aggregatedPrice.getBidPrice();
-        BigDecimal totalAmount = trade.getQuantity().multiply(price);
+        BigDecimal totalAmount = quantity.multiply(price).setScale(8, RoundingMode.HALF_UP);
 
         String crypto = trade.getTradingPair().toString().replace("USDT", "");
         List<Wallet> wallets = walletRepository.findByUserId("1");
@@ -71,12 +73,12 @@ public class TransactionServiceImpl implements TransactionService {
                 throw new RuntimeException("Insufficient USDT balance");
             }
             walletUSDT.setAvailableBalance(walletUSDT.getAvailableBalance().subtract(totalAmount));
-            walletCrypto.setAvailableBalance(walletCrypto.getAvailableBalance().add(trade.getQuantity()));
+            walletCrypto.setAvailableBalance(walletCrypto.getAvailableBalance().add(quantity));
         } else {
-            if (walletCrypto.getAvailableBalance().compareTo(trade.getQuantity()) < 0) {
+            if (walletCrypto.getAvailableBalance().compareTo(quantity) < 0) {
                 throw new RuntimeException("Insufficient " + crypto + " balance");
             }
-            walletCrypto.setAvailableBalance(walletCrypto.getAvailableBalance().subtract(trade.getQuantity()));
+            walletCrypto.setAvailableBalance(walletCrypto.getAvailableBalance().subtract(quantity));
             walletUSDT.setAvailableBalance(walletUSDT.getAvailableBalance().add(totalAmount));
         }
 
@@ -85,7 +87,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = new Transaction();
         transaction.setTradingPair(trade.getTradingPair());
         transaction.setTransactionType(trade.getTransactionType());
-        transaction.setQuantity(trade.getQuantity());
+        transaction.setQuantity(quantity);
         transaction.setPrice(price);
         transaction.setTotalAmount(totalAmount);
         transactionRepository.save(transaction);
